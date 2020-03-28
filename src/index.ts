@@ -1,4 +1,4 @@
-import * as ts from "typescript";
+import * as ts from 'typescript';
 
 type Filename = string;
 
@@ -11,7 +11,7 @@ interface InterfaceProperties {
 }
 
 export const extractInterfaces = (filename: Filename): Interfaces => {
-  const interfaces: Interfaces = {}
+  const interfaces: Interfaces = {};
 
   const program = ts.createProgram([filename], {});
   const sourceFile = program.getSourceFile(filename);
@@ -24,23 +24,23 @@ export const extractInterfaces = (filename: Filename): Interfaces => {
 
   const traverse = (node: ts.Node): void => {
     if (ts.isInterfaceDeclaration(node)) {
-      const interfaceType = typeChecker.getTypeAtLocation(node)
-      const name = interfaceType.getSymbol()!.getName()
+      const interfaceType = typeChecker.getTypeAtLocation(node);
+      const name = interfaceType.getSymbol()!.getName();
 
-      let props: InterfaceProperties = interfaces[name] = {}
+      let props: InterfaceProperties = (interfaces[name] = {});
 
-      interfaceType.getProperties().map(prop => {
-        const propName = prop.getName()
+      for (const prop of interfaceType.getProperties()) {
+        const propName = prop.getName();
         props[propName] = typeChecker.typeToString(
           typeChecker.getTypeOfSymbolAtLocation(prop, prop.valueDeclaration)
-        )
-      })
+        );
+      }
     }
 
-    node.forEachChild(child => traverse(child))
-  }
+    node.forEachChild(child => traverse(child));
+  };
 
-  traverse(sourceFile)
+  traverse(sourceFile);
 
   return interfaces;
-}
+};

@@ -1,15 +1,15 @@
-import { extractInterfaces } from '../src'
+import { extractInterfaces } from '../src';
 
 const expectedOutput = {
   TestInterfaceA: {
     numberProp: 'number',
-    stringProp: 'string'
-  }
-}
+    stringProp: 'string',
+  },
+};
 
 describe('Interfaces', () => {
   it('Extracts interfaces', () => {
     const result = extractInterfaces('testfiles/interfaces-a.ts');
     expect(result).toEqual(expectedOutput);
-  })
-})
+  });
+});
