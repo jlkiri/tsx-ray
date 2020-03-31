@@ -1,14 +1,18 @@
 interface Attendee {
-  id: number;
+  id: ID;
   person: Person;
 }
 
 interface Address {
-  city: string;
-  country: string;
+  city: City;
+  country: Country;
 }
 
 interface Person {
   name: string;
   address: Address;
 }
+
+type ID = string[];
+type Country = string;
+type City = number;

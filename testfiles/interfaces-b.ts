@@ -1,4 +1,4 @@
-interface TestInterfaceB {
-  numberProp: number;
-  stringProp: string;
+export interface Address {
+  city: string;
+  country: string;
 }

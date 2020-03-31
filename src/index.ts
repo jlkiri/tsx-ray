@@ -11,7 +11,7 @@ interface UnresolvedTypesByName {
   [key: string]: Array<UnresolvedTypeReference>;
 }
 
-interface Interfaces {
+interface InterfaceDefinitions {
   [key: string]: InterfaceDefinition;
 }
 
@@ -21,8 +21,8 @@ interface InterfaceDefinition {
 
 const jsStandardTypes = ['number', 'string'];
 
-export const extractInterfaces = (filename: Filename): Interfaces => {
-  const interfaces: Interfaces = {};
+export const extractInterfaces = (filename: Filename): InterfaceDefinitions => {
+  const interfaceDefs: InterfaceDefinitions = {};
   const unresolvedTypes: Set<string> = new Set();
   const typeReferences: UnresolvedTypesByName = {};
 
@@ -36,17 +36,23 @@ export const extractInterfaces = (filename: Filename): Interfaces => {
   const typeChecker = program.getTypeChecker();
 
   const traverse = (node: ts.Node): void => {
+    /* if (ts.isTypeAliasDeclaration(node)) {
+      const typeAlias = typeChecker.getTypeAtLocation(node);
+      console.log(typeChecker.typeToString(typeAlias));
+    } */
     if (ts.isInterfaceDeclaration(node)) {
       const interfaceType = typeChecker.getTypeAtLocation(node);
       const name = interfaceType.getSymbol()!.getName();
 
-      let props: InterfaceDefinition = (interfaces[name] = {});
+      let props: InterfaceDefinition = (interfaceDefs[name] = {});
 
       for (const prop of interfaceType.getProperties()) {
         const propName = prop.getName();
-        const nameOfType = typeChecker.typeToString(
-          typeChecker.getTypeOfSymbolAtLocation(prop, prop.valueDeclaration)
+        const typeOfSymbol = typeChecker.getTypeOfSymbolAtLocation(
+          prop,
+          prop.valueDeclaration
         );
+        const nameOfType = typeChecker.typeToString(typeOfSymbol);
 
         props[propName] = nameOfType;
 
@@ -73,19 +79,19 @@ export const extractInterfaces = (filename: Filename): Interfaces => {
   traverse(sourceFile);
 
   for (const unresolvedType of Array.from(unresolvedTypes)) {
-    if (!interfaces[unresolvedType]) {
-      throw new Error(`No definition found for ${unresolvedType}`);
+    if (!interfaceDefs[unresolvedType]) {
+      console.warn(`No definition found for ${unresolvedType}`);
     }
 
     const refPropPairs = typeReferences[unresolvedType];
 
     for (const unresolvedPropertyRef of refPropPairs) {
       const ref = unresolvedPropertyRef.ref;
-      ref[unresolvedPropertyRef.name] = interfaces[unresolvedType];
+      ref[unresolvedPropertyRef.name] = interfaceDefs[unresolvedType];
     }
   }
 
-  return interfaces;
+  return interfaceDefs;
 };
 
-// console.log(JSON.stringify(extractInterfaces('testfiles/interfaces-a.ts')));
+console.log(JSON.stringify(extractInterfaces('testfiles/interfaces-a.ts')));
