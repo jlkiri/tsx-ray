@@ -1,9 +1,25 @@
 import { extractInterfaces } from '../src';
 
 const expectedOutput = {
-  TestInterfaceA: {
-    numberProp: 'number',
-    stringProp: 'string',
+  Attendee: {
+    person: {
+      name: 'string',
+      address: {
+        city: 'number',
+        country: 'string',
+      },
+    },
+  },
+  Person: {
+    name: 'string',
+    address: {
+      city: 'number',
+      country: 'string',
+    },
+  },
+  Address: {
+    city: 'number',
+    country: 'string',
   },
 };
 
