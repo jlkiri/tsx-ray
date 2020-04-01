@@ -1,30 +1,22 @@
 import * as ts from 'typescript';
 
-type Filename = string;
+// eslint-disable-next-line prettier/prettier
+import type {
+  Filename,
+  TypenameToUnresolvedRefsMap,
+  TypeAliasDefinitions,
+  InterfaceDefinitions,
+  InterfaceDefinition,
+  StandardJSTypes,
+} from './types';
 
-interface UnresolvedTypeReference {
-  ref: InterfaceDefinition;
-  name: string;
-}
-
-interface UnresolvedTypesByName {
-  [key: string]: Array<UnresolvedTypeReference>;
-}
-
-interface InterfaceDefinitions {
-  [key: string]: InterfaceDefinition;
-}
-
-interface InterfaceDefinition {
-  [key: string]: string | InterfaceDefinition;
-}
-
-const jsStandardTypes = ['number', 'string'];
+const standardJsTypes: StandardJSTypes = ['number', 'string', 'string[]', 'number[]'];
 
 export const extractInterfaces = (filename: Filename): InterfaceDefinitions => {
   const interfaceDefs: InterfaceDefinitions = {};
+  const typeAliasDefs: TypeAliasDefinitions = {};
   const unresolvedTypes: Set<string> = new Set();
-  const typeReferences: UnresolvedTypesByName = {};
+  const typeReferences: TypenameToUnresolvedRefsMap = {};
 
   const program = ts.createProgram([filename], {});
   const sourceFile = program.getSourceFile(filename);
@@ -36,10 +28,25 @@ export const extractInterfaces = (filename: Filename): InterfaceDefinitions => {
   const typeChecker = program.getTypeChecker();
 
   const traverse = (node: ts.Node): void => {
-    /* if (ts.isTypeAliasDeclaration(node)) {
-      const typeAlias = typeChecker.getTypeAtLocation(node);
-      console.log(typeChecker.typeToString(typeAlias));
-    } */
+    if (ts.isTypeAliasDeclaration(node)) {
+      const getDeclaredTypeAliasName = (node: ts.Node) => {
+        const type = typeChecker.getTypeAtLocation(node);
+        return typeChecker.typeToString(type);
+      };
+
+      const aliasedType = typeChecker.getTypeAtLocation(node);
+      const symbol = aliasedType.getSymbol();
+
+      if (symbol?.getName() === 'Array') {
+        const typeArgs = typeChecker.getTypeArguments(
+          aliasedType as ts.TypeReference
+        );
+        const arrayElementType = typeChecker.typeToString(typeArgs[0]);
+        const declaredTypeAliasName = getDeclaredTypeAliasName(node);
+        typeAliasDefs[declaredTypeAliasName] = `${arrayElementType}[]`;
+      }
+    }
+
     if (ts.isInterfaceDeclaration(node)) {
       const interfaceType = typeChecker.getTypeAtLocation(node);
       const name = interfaceType.getSymbol()!.getName();
@@ -48,6 +55,7 @@ export const extractInterfaces = (filename: Filename): InterfaceDefinitions => {
 
       for (const prop of interfaceType.getProperties()) {
         const propName = prop.getName();
+
         const typeOfSymbol = typeChecker.getTypeOfSymbolAtLocation(
           prop,
           prop.valueDeclaration
@@ -56,7 +64,7 @@ export const extractInterfaces = (filename: Filename): InterfaceDefinitions => {
 
         props[propName] = nameOfType;
 
-        if (!jsStandardTypes.includes(nameOfType)) {
+        if (!standardJsTypes.includes(nameOfType as any)) {
           unresolvedTypes.add(nameOfType);
 
           const unresolvedPropertyRef = {
@@ -78,22 +86,20 @@ export const extractInterfaces = (filename: Filename): InterfaceDefinitions => {
 
   traverse(sourceFile);
 
+  const typeDefs = { ...interfaceDefs, ...typeAliasDefs };
+
   for (const unresolvedType of Array.from(unresolvedTypes)) {
-    if (!interfaceDefs[unresolvedType]) {
+    if (!typeDefs[unresolvedType]) {
       console.warn(`No definition found for ${unresolvedType}`);
     }
 
-    const refPropPairs = typeReferences[unresolvedType];
+    const unresolvedReferences = typeReferences[unresolvedType];
 
-    for (const unresolvedPropertyRef of refPropPairs) {
+    for (const unresolvedPropertyRef of unresolvedReferences) {
       const ref = unresolvedPropertyRef.ref;
-      ref[unresolvedPropertyRef.name] = interfaceDefs[unresolvedType];
+      ref[unresolvedPropertyRef.name] = typeDefs[unresolvedType];
     }
   }
 
   return interfaceDefs;
 };
-/* 
-console.log(
-  JSON.stringify(extractInterfaces('testfiles/interfaces-a.ts'), null, 2)
-); */
