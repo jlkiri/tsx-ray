@@ -103,3 +103,5 @@ export const extractInterfaces = (filename: Filename): InterfaceDefinitions => {
 
   return interfaceDefs;
 };
+
+console.log(JSON.stringify(extractInterfaces('testfiles/interfaces-a.ts'), null, 2))
