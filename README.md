@@ -3,20 +3,10 @@ TS interface to JS object extractor
 Turns this
 
 ```typescript
-type ID = string;
-type PhoneNumbers = string[];
-type Country = string;
-type City = number;
-
 interface Attendee {
   id: ID;
   person: Person;
   accompaniedBy?: Person;
-}
-
-interface Address {
-  city: City;
-  country: Country;
 }
 
 interface Person {
@@ -24,42 +14,53 @@ interface Person {
   address: Address;
   phoneNumbers: PhoneNumbers;
 }
+
+interface Address {
+  city: City | CityCode;
+  country: Country;
+}
+
+type Country = string;
+type City = string;
+type CityCode = number;
+type ID = string;
+type PhoneNumbers = string[];
 ```
 
 into this
 
 ```javascript
-{ 
-  "Attendee": { 
-    "id": "string", 
-    "person": { 
-      "name": "string", 
-      "address": { 
-        "city": "number", 
-        "country": "string" 
-      }, 
-      "phoneNumbers": "string[]" 
-    }, 
-    "accompaniedBy": { 
-      "name": "string", 
-      "address": { 
-        "city": "number", 
-        "country": "string" 
-      }, 
-      "phoneNumbers": "string[]" 
-    } 
-  }, 
-  "Address": { 
-    "city": "number", 
-    "country": "string" 
-  }, 
-  "Person": { 
-    "name": "string", 
-    "address": { 
-      "city": "number", 
-      "country": "string" 
-    }, 
-    "phoneNumbers": "string[]" 
-  } 
-} 
+{
+  Address: {
+    city: ['string', 'number'],
+    country: 'string',
+  },
+  Attendee: {
+    id: 'string',
+    person: {
+      name: 'string',
+      phoneNumbers: ['string'],
+      address: {
+        city: ['string', 'number'],
+        country: 'string',
+      },
+    },
+    accompaniedBy: {
+      name: 'string',
+      phoneNumbers: ['string'],
+      address: {
+        city: ['string', 'number'],
+        country: 'string',
+      },
+    },
+  },
+  Person: {
+    name: 'string',
+    phoneNumbers: ['string'],
+    address: {
+      city: ['string', 'number'],
+      country: 'string',
+    },
+  },
+}
 ```
