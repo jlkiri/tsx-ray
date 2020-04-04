@@ -6,14 +6,23 @@ import {
   ImportDeclaration,
 } from 'ts-morph';
 import * as ts from 'typescript';
-import {
+import type {
   TypenameToUnresolvedRefsMap,
   InterfaceDefinitions,
   InterfaceDefinition,
   Filepath,
 } from './types';
-import { PrimitiveType } from './types';
-import { merge } from './utils';
+// import { PrimitiveType } from './types';
+// import { merge } from './utils';
+
+const merge = (obj1: object, obj2: object) => ({ ...obj1, ...obj2 });
+
+export enum PrimitiveType {
+  String = 'string',
+  Boolean = 'boolean',
+  Number = 'number',
+  Nothing = 'nothing',
+}
 
 const project = new Project({
   compilerOptions: {
@@ -38,6 +47,8 @@ const convertToPrimitiveRepresentation = (type: Type): PrimitiveType => {
       return PrimitiveType.String;
     case 'number':
       return PrimitiveType.Number;
+    case 'boolean':
+      return PrimitiveType.Boolean;
     default:
       return PrimitiveType.Nothing;
   }
@@ -50,6 +61,8 @@ const convertToArrayRepresentation = (type: Type): [PrimitiveType] => {
       return [PrimitiveType.String];
     case 'number':
       return [PrimitiveType.Number];
+    case 'boolean':
+      return [PrimitiveType.Boolean];
     default:
       return [PrimitiveType.Nothing];
   }
@@ -102,6 +115,8 @@ export const parseInterfacesFromSourceFile = (
         const typeArgs = type.getTypeArguments();
         const arrayElementType = convertToArrayRepresentation(typeArgs[0]);
         properties[property.getName()] = arrayElementType;
+      } else if (type.isBoolean()) {
+        properties[property.getName()] = convertToPrimitiveRepresentation(type);
       } else if (type.isUnion()) {
         const unionTypes = type
           .getUnionTypes()
@@ -152,3 +167,7 @@ export const parseInterfacesFromSourceFile = (
 
   return allInterfaceDefinitions;
 };
+
+console.log(
+  JSON.stringify(extractInterfaces('testfiles/interfaces.ts'), null, 2)
+);

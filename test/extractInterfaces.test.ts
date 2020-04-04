@@ -9,6 +9,7 @@ const expectedOutput = {
     id: 'string',
     person: {
       name: 'string',
+      isUnderage: 'boolean',
       phoneNumbers: ['string'],
       address: {
         city: ['string', 'number'],
@@ -17,6 +18,7 @@ const expectedOutput = {
     },
     accompaniedBy: {
       name: 'string',
+      isUnderage: 'boolean',
       phoneNumbers: ['string'],
       address: {
         city: ['string', 'number'],
@@ -26,6 +28,7 @@ const expectedOutput = {
   },
   Person: {
     name: 'string',
+    isUnderage: 'boolean',
     phoneNumbers: ['string'],
     address: {
       city: ['string', 'number'],

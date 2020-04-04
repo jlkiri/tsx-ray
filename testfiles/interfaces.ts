@@ -8,6 +8,7 @@ interface Attendee {
 
 interface Person {
   name: string;
+  isUnderage: boolean;
   address: Address;
   phoneNumbers: PhoneNumbers;
 }

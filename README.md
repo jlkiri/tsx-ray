@@ -1,4 +1,4 @@
-TS interface to JS object extractor
+This library extracts interface definitions from a TypeScript source file and parses it into a JSON-compatible object.
 
 Turns this
 
