@@ -1,6 +1,8 @@
-This library extracts interface definitions from a TypeScript source file and parses it into a JSON-compatible object.
+## Intro
 
-Turns this
+This library extracts interface definitions from a TypeScript source file and parses it into a JSON-compatible JavaScript object.
+
+Use it to turn this
 
 ```typescript
 interface Attendee {
@@ -11,6 +13,7 @@ interface Attendee {
 
 interface Person {
   name: string;
+  isUnderage: boolean;
   address: Address;
   phoneNumbers: PhoneNumbers;
 }
@@ -39,6 +42,7 @@ into this
     id: 'string',
     person: {
       name: 'string',
+      isUnderage: 'boolean',
       phoneNumbers: ['string'],
       address: {
         city: ['string', 'number'],
@@ -47,6 +51,7 @@ into this
     },
     accompaniedBy: {
       name: 'string',
+      isUnderage: 'boolean',
       phoneNumbers: ['string'],
       address: {
         city: ['string', 'number'],
@@ -56,6 +61,7 @@ into this
   },
   Person: {
     name: 'string',
+    isUnderage: 'boolean',
     phoneNumbers: ['string'],
     address: {
       city: ['string', 'number'],
@@ -63,4 +69,20 @@ into this
     },
   },
 }
+```
+
+## Install
+
+```sh
+npm install tsx-ray
+```
+
+## Usage
+
+The only exported function `extractInterfaces` takes a filepath argument.
+
+```javascript
+import { extractInterfaces } from 'tsx-ray';
+
+const result = extractInterfaces('src/mytsfile.ts');
 ```
