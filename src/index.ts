@@ -1,7 +1,6 @@
 import {
   Project,
   InterfaceDeclaration,
-  Type,
   SourceFile,
   ImportDeclaration,
 } from 'ts-morph';
@@ -13,7 +12,13 @@ import type {
   Filepath,
 } from './types';
 import { PrimitiveType } from './types';
-import { merge } from './utils';
+import {
+  merge,
+  isImport,
+  getNameFromType,
+  convertToArrayRepresentation,
+  convertToPrimitiveRepresentation,
+} from './utils';
 
 const project = new Project({
   compilerOptions: {
@@ -23,48 +28,12 @@ const project = new Project({
   },
 });
 
-const isImport = (text: string) => {
-  return text.includes('import');
-};
-
-const getNameFromType = (type: Type) => {
-  return type.getSymbol()!.getName();
-};
-
-const convertToPrimitiveRepresentation = (type: Type): PrimitiveType => {
-  const text = type.getText();
-  switch (text) {
-    case 'string':
-      return PrimitiveType.String;
-    case 'number':
-      return PrimitiveType.Number;
-    case 'boolean':
-      return PrimitiveType.Boolean;
-    default:
-      return PrimitiveType.Nothing;
-  }
-};
-
-const convertToArrayRepresentation = (type: Type): [PrimitiveType] => {
-  const text = type.getText();
-  switch (text) {
-    case 'string':
-      return [PrimitiveType.String];
-    case 'number':
-      return [PrimitiveType.Number];
-    case 'boolean':
-      return [PrimitiveType.Boolean];
-    default:
-      return [PrimitiveType.Nothing];
-  }
-};
-
 export const extractInterfaces = (filepath: Filepath) => {
   const sourceFile = project.addSourceFileAtPath(filepath);
   return parseInterfacesFromSourceFile(sourceFile);
 };
 
-export const parseInterfacesFromSourceFile = (
+const parseInterfacesFromSourceFile = (
   sourceFile: SourceFile
 ): InterfaceDefinitions => {
   const interfaces = sourceFile.getInterfaces();
@@ -158,3 +127,12 @@ export const parseInterfacesFromSourceFile = (
 
   return allInterfaceDefinitions;
 };
+
+export {
+  isArray,
+  isBoolean,
+  isObject,
+  isNumber,
+  isString,
+  isUnion,
+} from './utils';

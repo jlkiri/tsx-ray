@@ -14,6 +14,10 @@ export enum ArrayType {
   Nothing = 'nothing',
 }
 
+export type ObjectType = Record<string, any>;
+
+export type ParsedType = PrimitiveType | ArrayType | ObjectType;
+
 export type UnionType<T1 extends PrimitiveType, T2 extends PrimitiveType> = [
   T1,
   T2
