@@ -1,5 +1,24 @@
 import { Project, InterfaceDeclaration, Type } from 'ts-morph';
 import * as ts from 'typescript';
+import type {
+  TypenameToUnresolvedRefsMap,
+  InterfaceDefinitions,
+  InterfaceDefinition,
+  Filename,
+} from './types';
+// import { PrimitiveType } from './types';
+
+export enum PrimitiveType {
+  String = 'string',
+  Number = 'number',
+  Nothing = 'nothing',
+}
+
+export enum ArrayType {
+  String = 'string[]',
+  Number = 'number[]',
+  Nothing = 'nothing',
+}
 
 const project = new Project({
   compilerOptions: {
@@ -9,53 +28,104 @@ const project = new Project({
   },
 });
 
-const sourceFile = project.addSourceFileAtPath('testfiles/interfaces-a.tsx');
-const interfaces = sourceFile.getInterfaces();
 
-const formattedInts: any = {};
+const convertToPrimitiveRepresentation = (type: Type): PrimitiveType => {
+  const text = type.getText();
+  switch (text) {
+    case 'string':
+      return PrimitiveType.String;
+    case 'number':
+      return PrimitiveType.Number;
+    default:
+      return PrimitiveType.Nothing
+  }
+}
 
-const getInterfaceProperties = (intf: InterfaceDeclaration) => {
-  const properties: any = {};
-  for (const property of intf.getProperties()) {
-    const type = property.getType();
-    if (type.isArray()) {
-      const typeArgs = type.getTypeArguments();
-      const arrayElementType = typeArgs.map(t => t.getText())[0];
-      properties[property.getName()] = `${arrayElementType}[]`;
-    } else if (type.isUnion()) {
-      console.log(type.getUnionTypes().map(t => t.getText()));
-    } else if (!type.isInterface()) {
-      properties[property.getName()] = type.getText();
-    } else {
-      properties[property.getName()] = getInterfacePropertiesFromType(type);
+const convertToArrayRepresentation = (type: Type): [PrimitiveType] => {
+  const text = type.getText();
+  switch (text) {
+    case 'string':
+      return [PrimitiveType.String];
+    case 'number':
+      return [PrimitiveType.Number];
+    default:
+      return [PrimitiveType.Nothing]
+  }
+}
+
+const filename = 'testfiles/interfaces-a.tsx';
+
+const parseInterfaces = (filename: Filename): InterfaceDefinitions => {
+  const sourceFile = project.addSourceFileAtPath(filename);
+  const interfaces = sourceFile.getInterfaces();
+  
+  const parsedInterfaces: InterfaceDefinitions = {};
+  const unresolvedTypes: Set<string> = new Set();
+  const typeReferences: TypenameToUnresolvedRefsMap = {};
+
+  const parseInterfaceProperties = (intf: InterfaceDeclaration) => {
+    const properties: InterfaceDefinition = {};
+    for (const property of intf.getProperties()) {
+      const type = property.getType();
+      
+      if (type.isArray()) {
+        const typeArgs = type.getTypeArguments();
+        const arrayElementType = convertToArrayRepresentation(typeArgs[0]);
+        properties[property.getName()] = arrayElementType;
+      } 
+  
+      else if (type.isUnion()) {
+        const unionTypes = type
+        .getUnionTypes()
+        .map(convertToPrimitiveRepresentation) as [PrimitiveType, PrimitiveType];
+        properties[property.getName()] = unionTypes
+      }
+  
+      else if (type.isInterface()) {
+        const nameOfType = type.getText();
+  
+        unresolvedTypes.add(nameOfType);
+  
+        const unresolvedPropertyRef = {
+          ref: properties,
+          name: property.getName(),
+        };
+  
+        if (!typeReferences[nameOfType]) {
+          typeReferences[nameOfType] = [];
+        }
+  
+        typeReferences[nameOfType].push(unresolvedPropertyRef);
+      }
+      
+      else {
+        properties[property.getName()] = convertToPrimitiveRepresentation(type);
+      }
+    }
+    return properties;
+  };
+
+  for (const intf of interfaces) {
+    parsedInterfaces[intf.getName()] = parseInterfaceProperties(intf);
+  }
+  
+  for (const unresolvedType of Array.from(unresolvedTypes)) {
+    if (!parsedInterfaces[unresolvedType]) {
+      console.warn(`No definition found for ${unresolvedType}`);
+    }
+  
+    const unresolvedReferences = typeReferences[unresolvedType];
+  
+    for (const unresolvedPropertyRef of unresolvedReferences) {
+      const ref = unresolvedPropertyRef.ref;
+      ref[unresolvedPropertyRef.name] = parsedInterfaces[unresolvedType];
     }
   }
-  return properties;
-};
 
-const getInterfacePropertiesFromType = (intf: Type) => {
-  const properties: any = {};
-  for (const property of intf.getProperties()) {
-    const type = property.getTypeAtLocation(property.getValueDeclaration()!);
-    // type.isArra
-    if (type.isArray()) {
-      const typeArgs = type.getTypeArguments();
-      const arrayElementType = typeArgs.map(t => t.getText())[0];
-      properties[property.getName()] = `${arrayElementType}[]`;
-    } else if (type.isInterface()) {
-      properties[property.getName()] = getInterfacePropertiesFromType(type);
-    } else {
-      properties[property.getName()] = type.getText();
-    }
-  }
-  return properties;
-};
+  return parsedInterfaces;
+}
 
-interfaces.forEach(int => {
-  formattedInts[int.getName()] = getInterfaceProperties(int);
-});
-
-console.log(JSON.stringify(formattedInts, null, 2));
+console.log(JSON.stringify(parseInterfaces(filename), null, 2));
 
 const diagnostics = project.getPreEmitDiagnostics();
 // project.emitSync();
