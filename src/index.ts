@@ -12,17 +12,8 @@ import type {
   InterfaceDefinition,
   Filepath,
 } from './types';
-// import { PrimitiveType } from './types';
-// import { merge } from './utils';
-
-const merge = (obj1: object, obj2: object) => ({ ...obj1, ...obj2 });
-
-export enum PrimitiveType {
-  String = 'string',
-  Boolean = 'boolean',
-  Number = 'number',
-  Nothing = 'nothing',
-}
+import { PrimitiveType } from './types';
+import { merge } from './utils';
 
 const project = new Project({
   compilerOptions: {
@@ -167,7 +158,3 @@ export const parseInterfacesFromSourceFile = (
 
   return allInterfaceDefinitions;
 };
-
-console.log(
-  JSON.stringify(extractInterfaces('testfiles/interfaces.ts'), null, 2)
-);
