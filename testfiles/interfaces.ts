@@ -1,5 +1,3 @@
-// import React from 'react';
-
 interface Attendee {
   id: ID;
   person: Person;
@@ -22,5 +20,3 @@ type PhoneNumbers = string[];
 type Country = string;
 type City = string;
 type CityCode = number;
-
-// const Button: React.FC = () => <button>LOL</button>;

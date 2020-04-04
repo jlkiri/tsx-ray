@@ -1,107 +1,133 @@
+import { Project, InterfaceDeclaration, Type } from 'ts-morph';
 import * as ts from 'typescript';
-
-// eslint-disable-next-line prettier/prettier
 import type {
-  Filename,
   TypenameToUnresolvedRefsMap,
-  TypeAliasDefinitions,
   InterfaceDefinitions,
   InterfaceDefinition,
-  StandardJSTypes,
+  Filename,
 } from './types';
+// import { PrimitiveType } from './types';
 
-const standardJsTypes: StandardJSTypes = ['number', 'string', 'string[]', 'number[]'];
+export enum PrimitiveType {
+  String = 'string',
+  Number = 'number',
+  Nothing = 'nothing',
+}
 
-export const extractInterfaces = (filename: Filename): InterfaceDefinitions => {
-  const interfaceDefs: InterfaceDefinitions = {};
-  const typeAliasDefs: TypeAliasDefinitions = {};
+export enum ArrayType {
+  String = 'string[]',
+  Number = 'number[]',
+  Nothing = 'nothing',
+}
+
+const project = new Project({
+  compilerOptions: {
+    outDir: 'tsoutput',
+    declaration: true,
+    jsx: ts.JsxEmit.React,
+  },
+});
+
+
+const convertToPrimitiveRepresentation = (type: Type): PrimitiveType => {
+  const text = type.getText();
+  switch (text) {
+    case 'string':
+      return PrimitiveType.String;
+    case 'number':
+      return PrimitiveType.Number;
+    default:
+      return PrimitiveType.Nothing
+  }
+}
+
+const convertToArrayRepresentation = (type: Type): [PrimitiveType] => {
+  const text = type.getText();
+  switch (text) {
+    case 'string':
+      return [PrimitiveType.String];
+    case 'number':
+      return [PrimitiveType.Number];
+    default:
+      return [PrimitiveType.Nothing]
+  }
+}
+
+const filename = 'testfiles/interfaces-a.tsx';
+
+export const parseInterfaces = (filename: Filename): InterfaceDefinitions => {
+  const sourceFile = project.addSourceFileAtPath(filename);
+  const interfaces = sourceFile.getInterfaces();
+  
+  const parsedInterfaces: InterfaceDefinitions = {};
   const unresolvedTypes: Set<string> = new Set();
   const typeReferences: TypenameToUnresolvedRefsMap = {};
 
-  const program = ts.createProgram([filename], {});
-  const sourceFile = program.getSourceFile(filename);
-
-  if (!sourceFile) {
-    process.exit(1);
-  }
-
-  const typeChecker = program.getTypeChecker();
-
-  const traverse = (node: ts.Node): void => {
-    if (ts.isTypeAliasDeclaration(node)) {
-      const getDeclaredTypeAliasName = (node: ts.Node) => {
-        const type = typeChecker.getTypeAtLocation(node);
-        return typeChecker.typeToString(type);
-      };
-
-      const aliasedType = typeChecker.getTypeAtLocation(node);
-      const symbol = aliasedType.getSymbol();
-
-      if (symbol?.getName() === 'Array') {
-        const typeArgs = typeChecker.getTypeArguments(
-          aliasedType as ts.TypeReference
-        );
-        const arrayElementType = typeChecker.typeToString(typeArgs[0]);
-        const declaredTypeAliasName = getDeclaredTypeAliasName(node);
-        typeAliasDefs[declaredTypeAliasName] = `${arrayElementType}[]`;
+  const parseInterfaceProperties = (intf: InterfaceDeclaration) => {
+    const properties: InterfaceDefinition = {};
+    for (const property of intf.getProperties()) {
+      const type = property.getType();
+      
+      if (type.isArray()) {
+        const typeArgs = type.getTypeArguments();
+        const arrayElementType = convertToArrayRepresentation(typeArgs[0]);
+        properties[property.getName()] = arrayElementType;
+      } 
+  
+      else if (type.isUnion()) {
+        const unionTypes = type
+        .getUnionTypes()
+        .map(convertToPrimitiveRepresentation) as [PrimitiveType, PrimitiveType];
+        properties[property.getName()] = unionTypes
       }
-    }
-
-    if (ts.isInterfaceDeclaration(node)) {
-      const interfaceType = typeChecker.getTypeAtLocation(node);
-      const name = interfaceType.getSymbol()!.getName();
-
-      let props: InterfaceDefinition = (interfaceDefs[name] = {});
-
-      for (const prop of interfaceType.getProperties()) {
-        const propName = prop.getName();
-
-        const typeOfSymbol = typeChecker.getTypeOfSymbolAtLocation(
-          prop,
-          prop.valueDeclaration
-        );
-        const nameOfType = typeChecker.typeToString(typeOfSymbol);
-
-        props[propName] = nameOfType;
-
-        if (!standardJsTypes.includes(nameOfType as any)) {
-          unresolvedTypes.add(nameOfType);
-
-          const unresolvedPropertyRef = {
-            ref: props,
-            name: propName,
-          };
-
-          if (!typeReferences[nameOfType]) {
-            typeReferences[nameOfType] = [];
-          }
-
-          typeReferences[nameOfType].push(unresolvedPropertyRef);
+  
+      else if (type.isInterface()) {
+        const nameOfType = type.getText();
+  
+        unresolvedTypes.add(nameOfType);
+  
+        const unresolvedPropertyRef = {
+          ref: properties,
+          name: property.getName(),
+        };
+  
+        if (!typeReferences[nameOfType]) {
+          typeReferences[nameOfType] = [];
         }
+  
+        typeReferences[nameOfType].push(unresolvedPropertyRef);
+      }
+      
+      else {
+        properties[property.getName()] = convertToPrimitiveRepresentation(type);
       }
     }
-
-    node.forEachChild(child => traverse(child));
+    return properties;
   };
 
-  traverse(sourceFile);
-
-  const typeDefs = { ...interfaceDefs, ...typeAliasDefs };
-
+  for (const intf of interfaces) {
+    parsedInterfaces[intf.getName()] = parseInterfaceProperties(intf);
+  }
+  
   for (const unresolvedType of Array.from(unresolvedTypes)) {
-    if (!typeDefs[unresolvedType]) {
+    if (!parsedInterfaces[unresolvedType]) {
       console.warn(`No definition found for ${unresolvedType}`);
     }
-
+  
     const unresolvedReferences = typeReferences[unresolvedType];
-
+  
     for (const unresolvedPropertyRef of unresolvedReferences) {
       const ref = unresolvedPropertyRef.ref;
-      ref[unresolvedPropertyRef.name] = typeDefs[unresolvedType];
+      ref[unresolvedPropertyRef.name] = parsedInterfaces[unresolvedType];
     }
   }
 
-  return interfaceDefs;
-};
+  return parsedInterfaces;
+}
 
-console.log(JSON.stringify(extractInterfaces('testfiles/interfaces-a.ts'), null, 2))
+
+console.log(JSON.stringify(parseInterfaces(filename), null, 2));
+
+const diagnostics = project.getPreEmitDiagnostics();
+// project.emitSync();
+console.log(project.formatDiagnosticsWithColorAndContext(diagnostics));
