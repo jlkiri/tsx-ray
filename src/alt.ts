@@ -1,11 +1,11 @@
-import { Project, InterfaceDeclaration } from 'ts-morph';
-import { JsxEmit } from 'typescript';
+import { Project, InterfaceDeclaration, Type } from 'ts-morph';
+import * as ts from 'typescript';
 
 const project = new Project({
   compilerOptions: {
     outDir: 'tsoutput',
     declaration: true,
-    jsx: JsxEmit.React,
+    jsx: ts.JsxEmit.React,
   },
 });
 
@@ -15,20 +15,36 @@ const interfaces = sourceFile.getInterfaces();
 const formattedInts: any = {};
 
 const getInterfaceProperties = (intf: InterfaceDeclaration) => {
-  const rawProps = intf.getProperties();
-  const formattedProps: any = {};
-  for (const prop of rawProps) {
-    const type = prop.getType();
-    formattedProps[prop.getName()] = type.getText();
+  const properties: any = {};
+  for (const property of intf.getProperties()) {
+    const type = property.getType();
+    if (!type.isInterface()) {
+      properties[property.getName()] = type.getText();
+    } else {
+      properties[property.getName()] = getInterfacePropertiesFromType(type);
+    }
   }
-  return formattedProps;
+  return properties;
+};
+
+const getInterfacePropertiesFromType = (intf: Type) => {
+  const properties: any = {};
+  for (const property of intf.getProperties()) {
+    const type = property.getTypeAtLocation(property.getValueDeclaration()!);
+    if (type.isInterface()) {
+      properties[property.getName()] = getInterfacePropertiesFromType(type);
+    } else {
+      properties[property.getName()] = type.getText();
+    }
+  }
+  return properties;
 };
 
 interfaces.forEach(int => {
   formattedInts[int.getName()] = getInterfaceProperties(int);
 });
 
-console.log(formattedInts);
+console.log(JSON.stringify(formattedInts, null, 2));
 
 // Get props of interfaces that themselves are properties. Uses function from ts module?
 
