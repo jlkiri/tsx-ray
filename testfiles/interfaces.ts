@@ -1,12 +1,9 @@
+import { Address } from './address';
+
 interface Attendee {
   id: ID;
   person: Person;
   accompaniedBy?: Person;
-}
-
-interface Address {
-  city: City;
-  country: Country;
 }
 
 interface Person {
@@ -17,5 +14,3 @@ interface Person {
 
 type ID = string;
 type PhoneNumbers = string[];
-type Country = string;
-type City = number;

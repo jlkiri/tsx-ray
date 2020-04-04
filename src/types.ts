@@ -1,6 +1,23 @@
-export type Filename = string;
-export type JSType = 'string' | 'number' | 'string[]' | 'number[]';
-export type StandardJSTypes = JSType[];
+export type Filepath = string;
+
+export enum PrimitiveType {
+  String = 'string',
+  Boolean = 'boolean',
+  Number = 'number',
+  Nothing = 'nothing',
+}
+
+export enum ArrayType {
+  String = 'string[]',
+  Number = 'number[]',
+  Boolean = 'boolean[]',
+  Nothing = 'nothing',
+}
+
+export type UnionType<T1 extends PrimitiveType, T2 extends PrimitiveType> = [
+  T1,
+  T2
+];
 
 export interface UnresolvedTypeReference {
   ref: InterfaceDefinition;
@@ -19,7 +36,11 @@ export interface InterfaceDefinitions {
   [key: string]: InterfaceDefinition;
 }
 
-export type InterfaceProperty = string | InterfaceDefinition;
+export type InterfaceProperty =
+  | PrimitiveType
+  | [PrimitiveType]
+  | UnionType<PrimitiveType, PrimitiveType>
+  | InterfaceDefinition;
 
 export interface InterfaceDefinition {
   [key: string]: InterfaceProperty;
