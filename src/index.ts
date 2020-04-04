@@ -28,6 +28,13 @@ const project = new Project({
   },
 });
 
+const isImport = (text: string) => {
+  return text.includes('import')
+}
+
+const getNameFromType = (type: Type) => {
+  return type.getSymbol()!.getName();
+}
 
 const convertToPrimitiveRepresentation = (type: Type): PrimitiveType => {
   const text = type.getText();
@@ -53,7 +60,7 @@ const convertToArrayRepresentation = (type: Type): [PrimitiveType] => {
   }
 }
 
-const filename = 'testfiles/interfaces-a.tsx';
+const filename = 'testfiles/interfaces.ts';
 
 export const parseInterfaces = (filename: Filename): InterfaceDefinitions => {
   const sourceFile = project.addSourceFileAtPath(filename);
@@ -82,8 +89,10 @@ export const parseInterfaces = (filename: Filename): InterfaceDefinitions => {
       }
   
       else if (type.isInterface()) {
-        const nameOfType = type.getText();
-  
+        const rawText = type.getText();
+        const nameOfType = isImport(rawText) ? getNameFromType(type) : rawText
+
+        console.log(nameOfType)
         unresolvedTypes.add(nameOfType);
   
         const unresolvedPropertyRef = {
@@ -106,6 +115,7 @@ export const parseInterfaces = (filename: Filename): InterfaceDefinitions => {
   };
 
   for (const intf of interfaces) {
+    console.log(intf.getName())
     parsedInterfaces[intf.getName()] = parseInterfaceProperties(intf);
   }
   

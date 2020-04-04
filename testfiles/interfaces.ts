@@ -1,12 +1,9 @@
+import { Address } from './module';
+
 interface Attendee {
   id: ID;
   person: Person;
   accompaniedBy?: Person;
-}
-
-interface Address {
-  city: City | CityCode;
-  country: Country;
 }
 
 interface Person {
@@ -17,6 +14,3 @@ interface Person {
 
 type ID = string;
 type PhoneNumbers = string[];
-type Country = string;
-type City = string;
-type CityCode = number;
