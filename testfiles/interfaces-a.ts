@@ -1,4 +1,4 @@
-interface Attendee {
+/* interface Attendee {
   id: ID;
   person: Person;
   accompaniedBy?: Person;
@@ -10,7 +10,7 @@ interface Address {
 }
 
 interface Person {
-  name: string;
+  name: string[];
   address: Address;
   phoneNumbers: PhoneNumbers;
 }
@@ -18,4 +18,4 @@ interface Person {
 type ID = string;
 type PhoneNumbers = string[];
 type Country = string;
-type City = number;
+type City = number; */

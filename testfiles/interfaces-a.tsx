@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 
 interface Attendee {
   id: ID;
@@ -7,12 +7,12 @@ interface Attendee {
 }
 
 interface Address {
-  city: City;
+  city: City | CityCode;
   country: Country;
 }
 
 interface Person {
-  name: string[];
+  name: string;
   address: Address;
   phoneNumbers: PhoneNumbers;
 }
@@ -20,6 +20,7 @@ interface Person {
 type ID = string;
 type PhoneNumbers = string[];
 type Country = string;
-type City = number;
+type City = string;
+type CityCode = number;
 
-const Button: React.FC = () => <button>LOL</button>;
+// const Button: React.FC = () => <button>LOL</button>;

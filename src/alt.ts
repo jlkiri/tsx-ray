@@ -18,7 +18,13 @@ const getInterfaceProperties = (intf: InterfaceDeclaration) => {
   const properties: any = {};
   for (const property of intf.getProperties()) {
     const type = property.getType();
-    if (!type.isInterface()) {
+    if (type.isArray()) {
+      const typeArgs = type.getTypeArguments();
+      const arrayElementType = typeArgs.map(t => t.getText())[0];
+      properties[property.getName()] = `${arrayElementType}[]`;
+    } else if (type.isUnion()) {
+      console.log(type.getUnionTypes().map(t => t.getText()));
+    } else if (!type.isInterface()) {
       properties[property.getName()] = type.getText();
     } else {
       properties[property.getName()] = getInterfacePropertiesFromType(type);
@@ -31,7 +37,12 @@ const getInterfacePropertiesFromType = (intf: Type) => {
   const properties: any = {};
   for (const property of intf.getProperties()) {
     const type = property.getTypeAtLocation(property.getValueDeclaration()!);
-    if (type.isInterface()) {
+    // type.isArra
+    if (type.isArray()) {
+      const typeArgs = type.getTypeArguments();
+      const arrayElementType = typeArgs.map(t => t.getText())[0];
+      properties[property.getName()] = `${arrayElementType}[]`;
+    } else if (type.isInterface()) {
       properties[property.getName()] = getInterfacePropertiesFromType(type);
     } else {
       properties[property.getName()] = type.getText();
@@ -45,24 +56,6 @@ interfaces.forEach(int => {
 });
 
 console.log(JSON.stringify(formattedInts, null, 2));
-
-// Get props of interfaces that themselves are properties. Uses function from ts module?
-
-/* interfaces.forEach(int => {
-  console.log(int.getProperties().length);
-  int.getProperties().forEach(prop => {
-    const type = prop.getType();
-    if (type.isInterface()) {
-      console.log('interface!');
-
-      type
-        .getProperties()
-        .forEach(p =>
-          console.log(p.getTypeAtLocation(p.getValueDeclaration()!).getText())
-        );
-    }
-  });
-}); */
 
 const diagnostics = project.getPreEmitDiagnostics();
 // project.emitSync();
