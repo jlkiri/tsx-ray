@@ -1,42 +1,42 @@
-import { parseInterfaces } from '../src';
+import { extractInterfaces } from '../src';
 
 const expectedOutput = {
-  Attendee: {
-    id: 'string',
-    person: {
-      name: 'string',
-      address: {
-        city: ['string', 'number'],
-        country: 'string',
-      },
-      phoneNumbers: ['string'],
-    },
-    accompaniedBy: {
-      name: 'string',
-      address: {
-        city: ['string', 'number'],
-        country: 'string',
-      },
-      phoneNumbers: ['string'],
-    },
-  },
   Address: {
     city: ['string', 'number'],
     country: 'string',
   },
+  Attendee: {
+    id: 'string',
+    person: {
+      name: 'string',
+      phoneNumbers: ['string'],
+      address: {
+        city: ['string', 'number'],
+        country: 'string',
+      },
+    },
+    accompaniedBy: {
+      name: 'string',
+      phoneNumbers: ['string'],
+      address: {
+        city: ['string', 'number'],
+        country: 'string',
+      },
+    },
+  },
   Person: {
     name: 'string',
+    phoneNumbers: ['string'],
     address: {
       city: ['string', 'number'],
       country: 'string',
     },
-    phoneNumbers: ['string'],
   },
 };
 
 describe('Interfaces', () => {
   it('Extracts interfaces', () => {
-    const result = parseInterfaces('testfiles/interfaces-a.ts');
+    const result = extractInterfaces('testfiles/interfaces.ts');
     expect(result).toEqual(expectedOutput);
   });
 });

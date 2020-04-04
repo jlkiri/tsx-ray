@@ -1,7 +1,8 @@
-export type Filename = string;
+export type Filepath = string;
 
 export enum PrimitiveType {
   String = 'string',
+  Boolean = 'boolean',
   Number = 'number',
   Nothing = 'nothing',
 }
@@ -9,6 +10,7 @@ export enum PrimitiveType {
 export enum ArrayType {
   String = 'string[]',
   Number = 'number[]',
+  Boolean = 'boolean[]',
   Nothing = 'nothing',
 }
 

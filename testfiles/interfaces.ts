@@ -1,4 +1,4 @@
-import { Address } from './module';
+import { Address } from './address';
 
 interface Attendee {
   id: ID;

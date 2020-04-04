@@ -12,5 +12,6 @@ module.exports = {
   rules: {
     semi: 'off',
     quotes: ['warn', 'single'],
+    'arrow-parens': 'always',
   },
 };
