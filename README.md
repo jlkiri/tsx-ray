@@ -71,12 +71,6 @@ into this
 }
 ```
 
-## Install
-
-```sh
-npm install tsx-ray
-```
-
 ## Usage
 
 The only exported function `extractInterfaces` takes a filepath argument.
