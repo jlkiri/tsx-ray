@@ -20,15 +20,36 @@ import {
   convertToPrimitiveRepresentation,
 } from './utils';
 
-const project = new Project({
-  compilerOptions: {
-    outDir: 'tsoutput',
-    declaration: true,
-    jsx: ts.JsxEmit.React,
-  },
-});
+export const compileFile = (filepath: Filepath, outDir: string) => {
+  const project = new Project({
+    compilerOptions: {
+      outDir,
+      declaration: false,
+      jsx: ts.JsxEmit.React,
+    },
+  });
+  const sourceFile = project.addSourceFileAtPath(filepath);
+  sourceFile.emitSync();
+};
 
-export const extractInterfaces = (filepath: Filepath) => {
+export const compileSourceSync = (sourceFile: SourceFile) =>
+  sourceFile.emitSync();
+
+export const extractInterfaces = (sourceFile: SourceFile) =>
+  parseInterfacesFromSourceFile(sourceFile);
+
+export const getDefaultImports = (sourceFile: SourceFile) => {
+  return sourceFile
+    .getImportDeclarations()
+    .filter((imp) => imp.getDefaultImport());
+};
+
+export const extractInterfacesFromFile = (filepath: Filepath) => {
+  const project = new Project({
+    compilerOptions: {
+      jsx: ts.JsxEmit.React,
+    },
+  });
   const sourceFile = project.addSourceFileAtPath(filepath);
   return parseInterfacesFromSourceFile(sourceFile);
 };

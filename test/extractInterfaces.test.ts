@@ -1,4 +1,4 @@
-import { extractInterfaces } from '../src';
+import { extractInterfacesFromFile } from '../src';
 
 const expectedOutput = {
   Address: {
@@ -39,7 +39,7 @@ const expectedOutput = {
 
 describe('Interfaces', () => {
   it('Extracts interfaces', () => {
-    const result = extractInterfaces('testfiles/interfaces.ts');
+    const result = extractInterfacesFromFile('testfiles/interfaces.ts');
     expect(result).toEqual(expectedOutput);
   });
 });
