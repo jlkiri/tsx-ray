@@ -5,13 +5,14 @@ import {
   ImportDeclaration,
 } from 'ts-morph';
 import * as ts from 'typescript';
+// eslint-disable-next-line
 import type {
   TypenameToUnresolvedRefsMap,
   InterfaceDefinitions,
   InterfaceDefinition,
   Filepath,
 } from './types';
-import { PrimitiveType } from './types';
+import { PrimitiveType, ArrayType, ParsedType, UnionType, ObjectType } from './types';
 import {
   merge,
   isImport,
@@ -99,6 +100,8 @@ const parseInterfacesFromSourceFile = (
       } else if (type.isBoolean()) {
         properties[property.getName()] = convertToPrimitiveRepresentation(type);
       } else if (type.isUnion()) {
+        console.log(type
+          .getUnionTypes().map(t=>t.getText()))
         const unionTypes = type
           .getUnionTypes()
           .map(convertToPrimitiveRepresentation) as [
@@ -149,11 +152,4 @@ const parseInterfacesFromSourceFile = (
   return allInterfaceDefinitions;
 };
 
-export {
-  isArray,
-  isBoolean,
-  isObject,
-  isNumber,
-  isString,
-  isUnion,
-} from './utils';
+export { PrimitiveType, ArrayType, ObjectType, ParsedType, UnionType };

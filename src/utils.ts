@@ -1,11 +1,5 @@
 import { Type } from 'ts-morph';
-import {
-  PrimitiveType,
-  ParsedType,
-  ObjectType,
-  ArrayType,
-  UnionType,
-} from './types';
+import { PrimitiveType } from './types';
 
 export const prettyPrint = (obj: object) => JSON.stringify(obj, null, 2);
 
@@ -45,30 +39,4 @@ export const convertToArrayRepresentation = (type: Type): [PrimitiveType] => {
     default:
       return [PrimitiveType.Nothing];
   }
-};
-
-export const isString = (t: ParsedType): t is PrimitiveType.String => {
-  return t === PrimitiveType.String;
-};
-
-export const isBoolean = (t: ParsedType): t is PrimitiveType.Boolean => {
-  return t === PrimitiveType.Boolean;
-};
-
-export const isNumber = (t: ParsedType): t is PrimitiveType.Number => {
-  return t === PrimitiveType.Number;
-};
-
-export const isObject = (t: ParsedType): t is ObjectType => {
-  return typeof t === 'object' && t !== null && !Array.isArray(t);
-};
-
-export const isArray = (t: ParsedType): t is ArrayType => {
-  return Array.isArray(t) && t.length === 1;
-};
-
-export const isUnion = (
-  t: ParsedType
-): t is UnionType<PrimitiveType, PrimitiveType> => {
-  return Array.isArray(t) && t.length === 2;
 };
