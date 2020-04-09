@@ -4,7 +4,6 @@ import {
   SourceFile,
   ImportDeclaration,
 } from 'ts-morph';
-import * as ts from 'typescript';
 // eslint-disable-next-line
 import type {
   TypenameToUnresolvedRefsMap,
@@ -26,7 +25,7 @@ export const compileFile = (filepath: Filepath, outDir: string) => {
     compilerOptions: {
       outDir,
       declaration: false,
-      jsx: ts.JsxEmit.React,
+      jsx: 2,
     },
   });
   const sourceFile = project.addSourceFileAtPath(filepath);
@@ -48,7 +47,7 @@ export const getDefaultImports = (sourceFile: SourceFile) => {
 export const extractInterfacesFromFile = (filepath: Filepath) => {
   const project = new Project({
     compilerOptions: {
-      jsx: ts.JsxEmit.React,
+      jsx: 2
     },
   });
   const sourceFile = project.addSourceFileAtPath(filepath);
