@@ -10,6 +10,7 @@ interface Attendee {
   person: Person;
   accompaniedBy?: Person;
   status: 'beginner' | 'experienced' | 'pro';
+  accessLv: 1 | 2 | 3;
 }
 
 interface Person {
@@ -60,6 +61,7 @@ into this
       },
     },
     status: ['beginner', 'experienced', 'pro'],
+    accessLv: [1, 2, 3],
   },
   Person: {
     name: 'string',

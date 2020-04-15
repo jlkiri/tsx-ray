@@ -26,6 +26,7 @@ const expectedOutput = {
       },
     },
     status: ['beginner', 'experienced', 'pro'],
+    accessLv: [1, 2, 3],
   },
   Person: {
     name: 'string',
