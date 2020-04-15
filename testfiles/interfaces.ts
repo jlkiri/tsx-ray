@@ -4,6 +4,7 @@ interface Attendee {
   id: ID;
   person: Person;
   accompaniedBy?: Person;
+  status: 'beginner' | 'experienced' | 'pro';
 }
 
 interface Person {

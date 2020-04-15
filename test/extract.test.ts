@@ -25,6 +25,7 @@ const expectedOutput = {
         country: 'string',
       },
     },
+    status: ['beginner', 'experienced', 'pro'],
   },
   Person: {
     name: 'string',

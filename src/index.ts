@@ -18,6 +18,7 @@ import {
   getNameFromType,
   convertToArrayRepresentation,
   convertToPrimitiveRepresentation,
+  removeQuotesIfLiteral,
 } from './utils';
 
 export const compileFile = (filepath: Filepath, outDir: string) => {
@@ -99,14 +100,11 @@ const parseInterfacesFromSourceFile = (
       } else if (type.isBoolean()) {
         properties[property.getName()] = convertToPrimitiveRepresentation(type);
       } else if (type.isUnion()) {
-        console.log(type
-          .getUnionTypes().map(t=>t.getText()))
+      
         const unionTypes = type
           .getUnionTypes()
-          .map(convertToPrimitiveRepresentation) as [
-          PrimitiveType,
-          PrimitiveType
-        ];
+          .map(removeQuotesIfLiteral) as PrimitiveType[]
+
         properties[property.getName()] = unionTypes;
       } else if (type.isInterface()) {
         const rawText = type.getText();

@@ -5,6 +5,13 @@ export const prettyPrint = (obj: object) => JSON.stringify(obj, null, 2);
 
 export const merge = (obj1: object, obj2: object) => ({ ...obj1, ...obj2 });
 
+export const removeQuotesIfLiteral = (type: Type) => {
+  if (type.isLiteral()) {
+    return type.getText().replace(/"/g, ``);
+  }
+  return type.getText();
+};
+
 export const isImport = (text: string) => {
   return text.includes('import');
 };

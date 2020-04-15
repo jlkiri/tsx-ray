@@ -9,6 +9,7 @@ interface Attendee {
   id: ID;
   person: Person;
   accompaniedBy?: Person;
+  status: 'beginner' | 'experienced' | 'pro';
 }
 
 interface Person {
@@ -58,6 +59,7 @@ into this
         country: 'string',
       },
     },
+    status: ['beginner', 'experienced', 'pro'],
   },
   Person: {
     name: 'string',

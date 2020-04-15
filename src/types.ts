@@ -18,10 +18,7 @@ export type ObjectType = Record<string, any>;
 
 export type ParsedType = PrimitiveType | ArrayType | ObjectType;
 
-export type UnionType<T1 extends PrimitiveType, T2 extends PrimitiveType> = [
-  T1,
-  T2
-];
+export type UnionType<T extends PrimitiveType> = T[];
 
 export interface UnresolvedTypeReference {
   ref: InterfaceDefinition;
@@ -43,7 +40,7 @@ export interface InterfaceDefinitions {
 export type InterfaceProperty =
   | PrimitiveType
   | [PrimitiveType]
-  | UnionType<PrimitiveType, PrimitiveType>
+  | UnionType<PrimitiveType>
   | InterfaceDefinition;
 
 export interface InterfaceDefinition {
