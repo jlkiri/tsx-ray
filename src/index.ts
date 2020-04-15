@@ -105,8 +105,6 @@ const parseInterfacesFromSourceFile = (
           .getUnionTypes()
           .map(removeQuotesIfLiteral) as PrimitiveType[]
 
-        console.log(unionTypes)
-
         properties[property.getName()] = unionTypes;
       } else if (type.isInterface()) {
         const rawText = type.getText();
