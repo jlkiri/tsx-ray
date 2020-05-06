@@ -23,7 +23,9 @@ export const getNameFromType = (type: Type) => {
   return type.getSymbol()!.getName();
 };
 
-export const convertToPrimitiveRepresentation = (type: Type): PrimitiveType => {
+export const convertToPrimitiveRepresentation = (
+    type: Type
+): PrimitiveType | boolean | string => {
   const text = type.getText();
   switch (text) {
     case 'string':
@@ -32,8 +34,12 @@ export const convertToPrimitiveRepresentation = (type: Type): PrimitiveType => {
       return PrimitiveType.Number;
     case 'boolean':
       return PrimitiveType.Boolean;
+    case 'true':
+      return true;
+    case 'false':
+      return false;
     default:
-      return PrimitiveType.Nothing;
+      return text;
   }
 };
 

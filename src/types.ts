@@ -1,3 +1,5 @@
+import { Type } from 'ts-morph';
+
 export type Filepath = string;
 
 export enum PrimitiveType {
@@ -41,7 +43,9 @@ export type InterfaceProperty =
   | PrimitiveType
   | [PrimitiveType]
   | UnionType<PrimitiveType>
-  | InterfaceDefinition;
+  | InterfaceDefinition
+  | boolean
+  | ReturnType<Type['getText']>;
 
 export interface InterfaceDefinition {
   [key: string]: InterfaceProperty;
