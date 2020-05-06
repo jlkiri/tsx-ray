@@ -77,10 +77,22 @@ into this
 
 ## Usage
 
-The exported function `extractInterfacesFromFile` takes a filepath argument.
+The exported function `extractInterfacesFromFile` takes a filepath argument:
 
 ```javascript
 import { extractInterfacesFromFile } from 'tsx-ray';
 
 const result = extractInterfacesFromFile('src/mytsfile.ts');
+
+console.log(result);
+
+/* Person: {
+    name: 'string',
+    isUnderage: 'boolean',
+    phoneNumbers: ['string'],
+    address: {
+      city: ['string', 'number'],
+      country: 'string',
+    },
+  } */
 ```
