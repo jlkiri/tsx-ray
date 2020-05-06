@@ -77,10 +77,10 @@ into this
 
 ## Usage
 
-The only exported function `extractInterfaces` takes a filepath argument.
+The exported function `extractInterfacesFromFile` takes a filepath argument.
 
 ```javascript
-import { extractInterfaces } from 'tsx-ray';
+import { extractInterfacesFromFile } from 'tsx-ray';
 
-const result = extractInterfaces('src/mytsfile.ts');
+const result = extractInterfacesFromFile('src/mytsfile.ts');
 ```
