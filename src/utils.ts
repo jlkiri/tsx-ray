@@ -24,7 +24,7 @@ export const getNameFromType = (type: Type) => {
 };
 
 export const convertToPrimitiveRepresentation = (
-    type: Type
+  type: Type
 ): PrimitiveType | boolean | string => {
   const text = type.getText();
   switch (text) {
