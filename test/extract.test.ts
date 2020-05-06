@@ -6,6 +6,7 @@ const expectedOutput = {
     country: 'string',
   },
   Attendee: {
+    container: true,
     id: 'string',
     person: {
       name: 'string',

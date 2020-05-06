@@ -6,6 +6,7 @@ interface Attendee {
   accompaniedBy?: Person;
   status: 'beginner' | 'experienced' | 'pro';
   accessLv: 1 | 2 | 3;
+  container: true;
 }
 
 interface Person {

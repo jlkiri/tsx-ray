@@ -41,7 +41,8 @@ export type InterfaceProperty =
   | PrimitiveType
   | [PrimitiveType]
   | UnionType<PrimitiveType>
-  | InterfaceDefinition;
+  | InterfaceDefinition
+  | boolean;
 
 export interface InterfaceDefinition {
   [key: string]: InterfaceProperty;
