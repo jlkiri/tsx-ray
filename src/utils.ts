@@ -39,7 +39,7 @@ export const convertToPrimitiveRepresentation = (
     case 'false':
       return false;
     default:
-      return type.getText();
+      return text;
   }
 };
 
